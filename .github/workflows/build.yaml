@@ -37,7 +37,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          
+
       - name: Configure Git
         run: |
           git config user.name "$GITHUB_ACTOR"
@@ -48,5 +48,7 @@ jobs:
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
+        with:
+          charts_dir: pyplanereport
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
