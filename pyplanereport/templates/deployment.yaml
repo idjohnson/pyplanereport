@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pyplanereport.fullname" . }}
+  labels:
+    {{- include "pyplanereport.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "pyplanereport.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "pyplanereport.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "pyplanereport.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          env:
+            - name: PRJID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "pyplanereport.fullname" . }}-cfg
+                  key: PRJID
+            - name: WSNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "pyplanereport.fullname" . }}-cfg
+                  key: WSNAME
+            - name: APIKEY
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "pyplanereport.fullname" . }}-cfg
+                  key: APIKEY
+            - name: TABLETITLE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "pyplanereport.fullname" . }}-cfg
+                  key: TABLETITLE
+            - name: IGNORESTATE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "pyplanereport.fullname" . }}-cfg
+                  key: IGNORESTATE
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
