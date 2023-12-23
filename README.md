@@ -23,3 +23,5 @@ You can just download the docker container and run it locally without Kubernetes
 $ docker run -d -e PRJID="9ca799e6-52c4-4a9e-8b40-461eef4f57e9" -e WSNAME="tpk" -e APIKEY="plane_api_xxxxxxxxxxxxxxxxxxxxxx" -e TABLETITLE="Passed In Title" -e IGNORESTATE="Cancelled"  -p 8999:80 --name pyplanetest pyplanelist:0.0.7
 20903d6f949e0ebb150f0d5c54825350cc521af4194b039e75a0f6fa7bafcb4e
 ```
+
+Note: Ignore state can be a comma seperated list of states to hide
