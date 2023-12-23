@@ -12,6 +12,10 @@ planeapikey = os.environ.get("APIKEY")
 tableTitle = os.environ.get("TABLETITLE")
 ignoreState = os.environ.get("IGNORESTATE")
 
+# check if csv a contains b
+def check_string_in_list(a, b):
+    return any(e in b for e in a.split(','))
+
 @app.route('/')
 def index():
     url = f'https://api.plane.so/api/v1/workspaces/{workspacename}/projects/{projectid}/issues/'
@@ -36,7 +40,7 @@ def index():
         for state in stateresults:
            if state["id"] == result['state']:
                stateName = state["name"]
-        if ignoreState != stateName:
+        if not check_string_in_list(ignoreState,stateName):
            table_data.append([result['name'], stateName, description_html, result['target_date']])
     env = Environment(loader=FileSystemLoader('/app'))
     template = env.get_template('table.html')
